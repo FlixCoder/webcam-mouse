@@ -1,0 +1,1 @@
+//! Webcam view widget.
