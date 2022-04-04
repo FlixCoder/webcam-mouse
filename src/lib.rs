@@ -9,12 +9,10 @@
 	dead_code
 )]
 
+mod camera;
 mod widgets;
 
-pub use self::widgets::{root_widget, RootUIState};
-
-// TODO:
-// - Camera picker combo box
-// - Camera view widget
-// - Camera image processing to find movement
-// - Selection to toggle image view: real, processed or movement image
+pub use self::{
+	camera::CameraConnector,
+	widgets::{root_widget, RootUIState},
+};
