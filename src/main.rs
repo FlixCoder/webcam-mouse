@@ -5,7 +5,8 @@ use druid::{AppLauncher, LocalizedString, WindowDesc};
 use webcam_mouse::{root_widget, CameraConnector, RootUIState};
 
 // TODO:
-// - Camera image processing to find movement
+// - Camera image processing to find movement (including
+//   imageproc::filter::median_filter)
 // - Selection to toggle image view: real, processed or movement image
 
 fn main() -> Result<()> {

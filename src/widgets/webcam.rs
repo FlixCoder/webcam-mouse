@@ -11,7 +11,8 @@ use image::{ColorType, ImageBuffer, Rgb};
 /// `CameraView` state
 #[derive(Debug, Clone, Default, Data)]
 pub struct CameraViewState {
-	// TODO: point to draw
+	/// Width and height of image.
+	image_dimensions: (u32, u32),
 }
 
 /// `CameraView` widget
@@ -36,8 +37,9 @@ impl Widget<CameraViewState> for CameraView {
 	fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut CameraViewState, env: &Env) {
 		if let Event::Command(command) = event {
 			if let Some(frame) = command.get(self.listen_selector).and_then(SingleUse::take) {
+				let (width, height) = frame.dimensions();
+				data.image_dimensions = (width, height);
 				self.image.set_image_data(frame_to_image(frame));
-				ctx.request_layout();
 				ctx.request_paint();
 			}
 		}
@@ -62,6 +64,10 @@ impl Widget<CameraViewState> for CameraView {
 		data: &CameraViewState,
 		env: &Env,
 	) {
+		if old_data.image_dimensions != data.image_dimensions {
+			ctx.request_layout();
+		}
+
 		self.image.update(ctx, old_data, data, env)
 	}
 
