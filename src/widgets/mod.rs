@@ -11,7 +11,7 @@ use druid::{
 };
 
 use self::cam_picker::PickerSender;
-use crate::camera::SELECTOR_CAMERA;
+use crate::camera::{S_CAMERA_FRAME, S_CAMERA_POINT};
 
 /// Root UI widget state.
 #[derive(Debug, Clone, Default, Data, Lens)]
@@ -22,7 +22,8 @@ pub struct RootUIState {
 
 /// Build the root UI widget.
 pub fn root_widget(cam_pick_sender: PickerSender) -> impl Widget<RootUIState> {
-	let cam_view = webcam::CameraView::new(SELECTOR_CAMERA).lens(RootUIState::cam_view);
+	let cam_view =
+		webcam::CameraView::new(S_CAMERA_FRAME, S_CAMERA_POINT).lens(RootUIState::cam_view);
 
 	let cam_dropdown = cam_picker::widget(cam_pick_sender).lens(RootUIState::cam_index);
 	let controls = Flex::column()
