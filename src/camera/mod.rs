@@ -49,7 +49,8 @@ impl CameraConnector {
 		let mut previous_frame = None;
 		loop {
 			// Retrieve camera frame and send it.
-			let current_frame = camera.frame()?;
+			let mut current_frame = camera.frame()?;
+			image::imageops::flip_horizontal_in_place(&mut current_frame);
 			self.event_sender.submit_command(
 				Selector::new(S_CAMERA_FRAME),
 				SingleUse::new(current_frame.clone()),
