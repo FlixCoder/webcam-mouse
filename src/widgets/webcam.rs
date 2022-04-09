@@ -94,16 +94,27 @@ impl Widget<CameraViewState> for CameraView {
 	fn paint(&mut self, ctx: &mut PaintCtx, data: &CameraViewState, env: &Env) {
 		self.image.paint(ctx, data, env);
 
-		// Draw point
-		let display_size = ctx.size();
-		let xfactor = display_size.width / data.image_dimensions.0 as f64;
-		let yfactor = display_size.height / data.image_dimensions.1 as f64;
-		let x = xfactor * data.detected_point.0 as f64;
-		let y = yfactor * data.detected_point.1 as f64;
+		// Only draw if there is an image
+		let (width, height) = data.image_dimensions;
+		if width == 0 || height == 0 {
+			return;
+		}
 
-		let brush = ctx.solid_brush(Color::rgba8(0x00, 0xFF, 0x00, 0xFF));
-		let shape = Circle::new((x, y), 2.5);
-		ctx.fill(shape, &brush);
+		// Draw point
+		let image_size = Size::new(width.into(), height.into());
+		let tansform_matrix = FillStrat::Contain.affine_to_fill(ctx.size(), image_size);
+		let x = data.detected_point.0 as f64;
+		let y = data.detected_point.1 as f64;
+
+		// Saves and restores context to avoid problems with other widgets after
+		// transform.
+		ctx.with_save(|ctx| {
+			ctx.transform(tansform_matrix);
+
+			let brush = ctx.solid_brush(Color::rgba8(0x00, 0xFF, 0x00, 0xFF));
+			let shape = Circle::new((x, y), 2.5);
+			ctx.fill(shape, &brush);
+		});
 	}
 }
 
