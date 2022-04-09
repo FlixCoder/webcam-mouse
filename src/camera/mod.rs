@@ -20,6 +20,8 @@ pub const S_PROCESSED_FRAME: &str = "CameraProcessedFrame";
 pub const S_DIFFERENCE_FRAME: &str = "CameraDifferenceFrame";
 /// Selector name for detected point.
 pub const S_CAMERA_POINT: &str = "CameraDetectedPoint";
+/// Selector name for camera FPS.
+pub const S_CAMERA_FPS: &str = "CameraFPS";
 
 /// Camera picker index receiver
 pub type PickReceiver = mpsc::Receiver<usize>;
@@ -84,6 +86,13 @@ impl CameraConnector {
 				}
 			}
 			previous_frame = Some(processed_frame);
+
+			// Send FPS
+			self.event_sender.submit_command(
+				Selector::new(S_CAMERA_FPS),
+				camera.frame_rate(),
+				Target::Auto,
+			)?;
 
 			// Check if there is a signal to switch to another camera.
 			match self.pick_receiver.try_recv() {
