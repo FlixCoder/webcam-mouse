@@ -13,6 +13,6 @@ mod camera;
 mod widgets;
 
 pub use self::{
-	camera::CameraConnector,
+	camera::{analysis, CameraConnector},
 	widgets::{root_widget, RootUIState},
 };

@@ -1,7 +1,7 @@
 //! Webcam handler. Uses a separate thread to retrieve images from the camera
 //! analyze them and send them to the UI view.
 
-mod analysis;
+pub mod analysis;
 
 use std::{
 	sync::mpsc,
@@ -50,17 +50,17 @@ impl CameraConnector {
 
 		let mut previous_frame = None;
 		loop {
-			// Retrieve camera frame and send it.
+			// Retrieve camera frame and process it to reduce noise and such.
 			let mut current_frame = camera.frame()?;
-			image::imageops::flip_horizontal_in_place(&mut current_frame);
+			analysis::flip_in_place(&mut current_frame);
+			let processed_frame = analysis::process_frame(&current_frame);
+
+			// Send original and processed image.
 			self.event_sender.submit_command(
 				Selector::new(S_CAMERA_FRAME),
-				SingleUse::new(current_frame.clone()),
+				SingleUse::new(current_frame),
 				Target::Auto,
 			)?;
-
-			// Process frame to reduce noise and such and send processed image.
-			let processed_frame = analysis::process_frame(current_frame);
 			self.event_sender.submit_command(
 				Selector::new(S_PROCESSED_FRAME),
 				SingleUse::new(processed_frame.clone()),
@@ -68,15 +68,15 @@ impl CameraConnector {
 			)?;
 
 			// Compare to previous frame, send diff image and send position.
-			if let Some(previous) = previous_frame {
-				let difference_frame = analysis::frame_difference(previous, &processed_frame);
-				let point = analysis::find_right_movement(&difference_frame);
+			if let Some(mut previous) = previous_frame {
+				analysis::frame_difference(&mut previous, &processed_frame);
+				let point = analysis::find_right_movement(&previous);
+
 				self.event_sender.submit_command(
 					Selector::new(S_DIFFERENCE_FRAME),
-					SingleUse::new(difference_frame),
+					SingleUse::new(previous),
 					Target::Auto,
 				)?;
-
 				if let Some(detected_point) = point {
 					self.event_sender.submit_command(
 						Selector::new(S_CAMERA_POINT),

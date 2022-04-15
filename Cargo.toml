@@ -11,8 +11,19 @@ druid = { version = "0.7.0" }
 druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery", rev = "f6710e79f191acafb549bc2294eff2021f650f3d" }
 image = "0.23.14"
 imageproc = "0.22.0"
-nokhwa = { version = "0.9.4", features = ["input-v4l"] }
+nokhwa = { version = "0.9.4", features = ["input-v4l", "input-msmf"] }
+rayon = "1.5.1"
 
 [patch.crates-io.druid]
 git = "https://github.com/linebender/druid"
 rev = "fc05e965c85fced8720c655685e02478e0530e94"
+
+[dev-dependencies]
+criterion = "0.3.5"
+
+[[bench]]
+name = "image_analysis"
+harness = false
+
+[profile.release]
+lto = true
