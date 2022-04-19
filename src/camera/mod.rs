@@ -40,13 +40,22 @@ impl CameraConnector {
 	}
 
 	/// Spawn and run the camera handler in a new thread.
-	pub fn spawn(self) -> JoinHandle<()> {
-		thread::spawn(move || self.run().expect("running camera handler"))
+	pub fn spawn(mut self) -> JoinHandle<()> {
+		thread::spawn(move || {
+			let mut cam_index = 0;
+			while let Err(err) = self.run(cam_index) {
+				eprintln!("Error running camera handler: {err}");
+				match self.pick_receiver.recv() {
+					Ok(index) => cam_index = index,
+					Err(mpsc::RecvError) => break,
+				}
+			}
+		})
 	}
 
 	/// Run this camera handler.
-	pub fn run(self) -> Result<()> {
-		let mut camera = Camera::new(0, None)?;
+	pub fn run(&mut self, start_index: usize) -> Result<()> {
+		let mut camera = Camera::new(start_index, None)?;
 		camera.open_stream()?;
 
 		let mut previous_frame = None;
@@ -103,7 +112,10 @@ impl CameraConnector {
 				Ok(index) => {
 					camera.stop_stream()?;
 					camera.set_index(index)?;
+					// Does `camera.set_index` keep the camera format?
+					// camera = Camera::new(index, None)?;
 					camera.open_stream()?;
+					previous_frame = None;
 				}
 				Err(mpsc::TryRecvError::Disconnected) => break,
 				_ => {}
