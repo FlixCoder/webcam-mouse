@@ -4,6 +4,6 @@ Remaster of small demo from many years ago, which tracks movement in the camera'
 
 ## Usage
 
-Install GTK3 development `gtk3-devel` and `clang` packages first, they are required for the build.
+Install GTK3 development `libgtk-3-dev`/`gtk3-devel` and `clang` packages first, they are required for the build.
 
 Run `cargo run --release`.
