@@ -1,21 +1,18 @@
 //! FPS view.
 
 use druid::{
-	widget::{Controller, Flex, Label},
+	widget::{Controller, Label},
 	Env, Event, Selector, Widget, WidgetExt,
 };
 
 use crate::camera::S_CAMERA_FPS;
 
 /// Data type of FPS messages and therefore also the widget
-pub type Fps = (u32, f32);
+pub type Fps = f32;
 
 /// Create the widget for the FPS view.
 pub fn widget() -> impl Widget<Fps> {
-	Flex::column()
-		.with_child(Label::new(|fps: &Fps, _env: &Env| format!("Camera FPS: {}", fps.0)))
-		.with_child(Label::new(|fps: &Fps, _env: &Env| format!("Processing FPS: {:.1}", fps.1)))
-		.controller(FpsController)
+	Label::new(|fps: &Fps, _env: &Env| format!("FPS: {:.1}", fps)).controller(FpsController)
 }
 
 /// Controller for receiving camera FPS.
