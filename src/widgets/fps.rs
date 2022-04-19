@@ -1,31 +1,37 @@
 //! FPS view.
 
 use druid::{
-	widget::{Controller, Label},
+	widget::{Controller, Flex, Label},
 	Env, Event, Selector, Widget, WidgetExt,
 };
 
 use crate::camera::S_CAMERA_FPS;
 
+/// Data type of FPS messages and therefore also the widget
+pub type Fps = (u32, f32);
+
 /// Create the widget for the FPS view.
-pub fn widget() -> impl Widget<u32> {
-	Label::new(|fps: &u32, _env: &Env| format!("FPS: {fps}")).controller(FpsController)
+pub fn widget() -> impl Widget<Fps> {
+	Flex::column()
+		.with_child(Label::new(|fps: &Fps, _env: &Env| format!("Camera FPS: {}", fps.0)))
+		.with_child(Label::new(|fps: &Fps, _env: &Env| format!("Processing FPS: {:.1}", fps.1)))
+		.controller(FpsController)
 }
 
 /// Controller for receiving camera FPS.
 struct FpsController;
 
-impl<W: Widget<u32>> Controller<u32, W> for FpsController {
+impl<W: Widget<Fps>> Controller<Fps, W> for FpsController {
 	fn event(
 		&mut self,
 		child: &mut W,
 		ctx: &mut druid::EventCtx,
 		event: &Event,
-		data: &mut u32,
+		data: &mut Fps,
 		env: &Env,
 	) {
 		if let Event::Command(command) = event {
-			if let Some(fps) = command.get(Selector::<u32>::new(S_CAMERA_FPS)) {
+			if let Some(fps) = command.get(Selector::<Fps>::new(S_CAMERA_FPS)) {
 				*data = *fps;
 			}
 		}
@@ -38,7 +44,7 @@ impl<W: Widget<u32>> Controller<u32, W> for FpsController {
 		child: &mut W,
 		ctx: &mut druid::LifeCycleCtx,
 		event: &druid::LifeCycle,
-		data: &u32,
+		data: &Fps,
 		env: &Env,
 	) {
 		child.lifecycle(ctx, event, data, env)
@@ -48,8 +54,8 @@ impl<W: Widget<u32>> Controller<u32, W> for FpsController {
 		&mut self,
 		child: &mut W,
 		ctx: &mut druid::UpdateCtx,
-		old_data: &u32,
-		data: &u32,
+		old_data: &Fps,
+		data: &Fps,
 		env: &Env,
 	) {
 		child.update(ctx, old_data, data, env)

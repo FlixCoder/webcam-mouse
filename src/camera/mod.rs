@@ -6,6 +6,7 @@ pub mod analysis;
 use std::{
 	sync::mpsc,
 	thread::{self, JoinHandle},
+	time::Instant,
 };
 
 use color_eyre::Result;
@@ -52,6 +53,7 @@ impl CameraConnector {
 		loop {
 			// Retrieve camera frame and process it to reduce noise and such.
 			let mut current_frame = camera.frame()?;
+			let timing = Instant::now();
 			analysis::flip_in_place(&mut current_frame);
 			let processed_frame = analysis::process_frame(&current_frame);
 
@@ -88,9 +90,11 @@ impl CameraConnector {
 			previous_frame = Some(processed_frame);
 
 			// Send FPS
+			let timing = timing.elapsed().as_secs_f32();
+			let processing_fps = 1.0 / timing;
 			self.event_sender.submit_command(
 				Selector::new(S_CAMERA_FPS),
-				camera.frame_rate(),
+				(camera.frame_rate(), processing_fps),
 				Target::Auto,
 			)?;
 

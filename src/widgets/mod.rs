@@ -9,7 +9,7 @@ use druid::{
 	Data, Lens, UnitPoint, Widget, WidgetExt,
 };
 
-use self::cam_picker::PickerSender;
+use self::{cam_picker::PickerSender, fps::Fps};
 use crate::camera::{S_CAMERA_FRAME, S_CAMERA_POINT, S_DIFFERENCE_FRAME, S_PROCESSED_FRAME};
 
 /// Root UI widget state.
@@ -20,7 +20,7 @@ pub struct RootUIState {
 	/// State of camera view
 	cam_view: webcam::CameraViewState,
 	/// Camera FPS
-	cam_fps: u32,
+	cam_fps: Fps,
 }
 
 /// Build the root UI widget.
