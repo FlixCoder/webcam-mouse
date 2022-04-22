@@ -41,7 +41,7 @@ impl CameraConnector {
 	}
 
 	/// Spawn and run the camera handler in a new thread.
-	pub fn spawn(self) -> (JoinHandle<()>, JoinHandle<()>) {
+	pub fn spawn(self) -> (JoinHandle<()>, JoinHandle<Result<()>>) {
 		let (frame_sender, frame_receiver) = mpsc::sync_channel(2);
 
 		let mut pick_receiver = self.pick_receiver;
@@ -59,10 +59,8 @@ impl CameraConnector {
 		});
 
 		let mut event_sender = self.event_sender;
-		let frame_processor_handle = thread::spawn(move || {
-			Self::run_frame_processor(frame_receiver, &mut event_sender)
-				.expect("running frame processor")
-		});
+		let frame_processor_handle =
+			thread::spawn(move || Self::run_frame_processor(frame_receiver, &mut event_sender));
 
 		(frame_receiver_handle, frame_processor_handle)
 	}

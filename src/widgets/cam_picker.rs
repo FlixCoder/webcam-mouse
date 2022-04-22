@@ -11,7 +11,7 @@ pub(crate) type PickerSender = mpsc::Sender<usize>;
 
 /// Create the widget for the camera picker
 pub fn widget(update_sender: PickerSender) -> impl Widget<usize> {
-	let mut cameras: Vec<_> = query_devices(CaptureAPIBackend::Auto).expect("listing cameras");
+	let mut cameras: Vec<_> = query_devices(CaptureAPIBackend::Auto).unwrap_or_default();
 	cameras.sort_by_key(|info| info.index());
 	let dropdown_cams: Vec<_> = cameras
 		.into_iter()
@@ -65,7 +65,10 @@ impl<W: Widget<usize>> Controller<usize, W> for SelectionController {
 		env: &druid::Env,
 	) {
 		if *old_data != *data {
-			self.sender.send(*data).expect("sending picked camera");
+			let res = self.sender.send(*data);
+			if res.is_err() {
+				eprintln!("Error sending picked camera!");
+			}
 		}
 
 		child.update(ctx, old_data, data, env)

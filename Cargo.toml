@@ -2,17 +2,28 @@
 name = "webcam-mouse"
 version = "0.1.0"
 edition = "2021"
+description = "Small dumb demo to track movement in the webcam. The rightmost pixel that has movement could be the mouse position."
+repository = "https://github.com/FlixCoder/webcam-mouse"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["jpeg"]
+jpeg = ["nokhwa/default"]
+wasm = ["nokhwa/input-jscam", "dep:wasm-bindgen", "dep:console_error_panic_hook", "dep:web-sys"]
 
 [dependencies]
 color-eyre = "0.6.1"
+console_error_panic_hook = { version = "0.1.7", optional = true }
 druid = { version = "0.7.0" }
 druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery", rev = "f6710e79f191acafb549bc2294eff2021f650f3d" }
 image = "0.23.14"
 imageproc = "0.22.0"
-nokhwa = { version = "0.9.4", features = ["input-v4l", "input-msmf"] }
+nokhwa = { version = "0.9.4", default-features = false, features = ["input-v4l", "input-msmf"] }
 rayon = "1.5.1"
+wasm-bindgen = { version = "0.2.80", optional = true }
+web-sys = { version = "0.3.57", optional = true, features = ["console"] }
 
 [patch.crates-io.druid]
 git = "https://github.com/linebender/druid"
